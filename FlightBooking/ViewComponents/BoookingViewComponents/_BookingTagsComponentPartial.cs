@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FlightBooking.ViewComponents.DefaultViewComponents
+namespace FlightBooking.ViewComponents.BoookingViewComponents
 {
-    public class _DefaultHeadComponentPartial : ViewComponent
+    public class _BookingTagsComponentPartial:ViewComponent
     {
         public IViewComponentResult Invoke()
         {
