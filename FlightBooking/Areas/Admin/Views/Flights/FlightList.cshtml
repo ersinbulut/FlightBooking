@@ -1,29 +1,27 @@
-﻿@model List<FlightBooking.Dtos.FlightDtos.ResultFlightDto>
+@model List<FlightBooking.Dtos.FlightDtos.ResultFlightDto>
 
 @{
     Layout = "~/Areas/Admin/Views/Layout/AdminLayout.cshtml";
     ViewData["Title"] = "Flights Management";
 
-    @* ---- Stat hesaplamaları (model boşsa sıfır döner) ---- *@
-    int totalFlights = Model?.Count() ?? 0;
+    int totalFlights     = Model?.Count() ?? 0;
     int completedFlights = Model?.Count(f => f.Status == "Completed") ?? 0;
-    int delayedFlights = Model?.Count(f => f.Status == "Delayed") ?? 0;
+    int delayedFlights   = Model?.Count(f => f.Status == "Delayed")   ?? 0;
     int cancelledFlights = Model?.Count(f => f.Status == "Cancelled") ?? 0;
 
-    @* ---- Status → Türkçe etiket & CSS sınıfı eşlemesi ---- *@
     var statusMap = new Dictionary<string, (string Label, string Css, string Icon)>
     {
-        ["Scheduled"] = ("Planlandı", "status-scheduled", "bi-calendar-check"),
-        ["Boarding"] = ("Boarding", "status-boarding", "bi-check2-circle"),
-        ["Delayed"] = ("Gecikmeli", "status-delayed", "bi-exclamation-triangle"),
-        ["Cancelled"] = ("İptal", "status-cancelled", "bi-x-circle"),
-        ["Completed"] = ("Tamamlandı", "status-completed", "bi-check-circle"),
+        ["Scheduled"] = ("Planlandı",   "status-scheduled", "bi-calendar-check"),
+        ["Boarding"]  = ("Boarding",    "status-boarding",  "bi-check2-circle"),
+        ["Delayed"]   = ("Gecikmeli",   "status-delayed",   "bi-exclamation-triangle"),
+        ["Cancelled"] = ("İptal",       "status-cancelled", "bi-x-circle"),
+        ["Completed"] = ("Tamamlandı",  "status-completed", "bi-check-circle"),
     };
 }
 
 <main class="main-content" id="main-content">
 
-    @* ── Page Header ────────────────────────────────────────── *@
+    @* ── Page Header ── *@
     <div class="page-header">
         <div class="page-title-group">
             <div class="page-breadcrumb">
@@ -37,13 +35,13 @@
                 Sistemde kayıtlı uçuşları görüntüleyebilir, düzenleyebilir veya yeni uçuş ekleyebilirsiniz.
             </p>
         </div>
-        <button class="btn-add" onclick="openModal()">
+        <a class="btn-add" href="/Admin/Flights/CreateFlight/">
             <i class="bi bi-plus-lg"></i>
             <span>Yeni Uçuş Ekle</span>
-        </button>
+        </a>
     </div>
 
-    @* ── Stat Cards ─────────────────────────────────────────── *@
+    @* ── Stat Cards ── *@
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-icon blue"><i class="bi bi-airplane-fill"></i></div>
@@ -82,13 +80,11 @@
         </div>
     </div>
 
-    @* ── Table Card ──────────────────────────────────────────── *@
+    @* ── Table Card ── *@
     <div class="table-card">
 
-        @* ── Filters ── *@
         <div class="table-card-header">
-
-            {{-- Arama --}}
+            @* Arama *@
             <div class="tbl-search">
                 <i class="bi bi-search si"></i>
                 <input type="text"
@@ -97,7 +93,7 @@
                        oninput="filterTable()" />
             </div>
 
-            {{-- Durum filtresi --}}
+            @* Durum filtresi *@
             <select class="filter-select" id="statusFilter" onchange="filterTable()">
                 <option value="">Tüm Durumlar</option>
                 <option value="Scheduled">Planlandı</option>
@@ -107,7 +103,7 @@
                 <option value="Completed">Tamamlandı</option>
             </select>
 
-            {{-- Havayolu filtresi (model'den dinamik) --}}
+            @* Havayolu filtresi (model'den dinamik) *@
             <select class="filter-select" id="airlineFilter" onchange="filterTable()">
                 <option value="">Tüm Havayolları</option>
                 @if (Model != null)
@@ -154,24 +150,30 @@
                     {
                         foreach (var flight in Model)
                         {
-                            @* Status badge değerlerini al, bilinmeyen status için fallback *@
-                            var (label, css, icon) = statusMap.TryGetValue(flight.Status, out var sv)
-                            ? sv
-                            : (flight.Status, "status-scheduled", "bi-circle");
+                            @* Tüm değişkenler @{ } bloğu içinde tanımlanıyor *@
+                            var (label, css, icon) = statusMap.TryGetValue(flight.Status ?? "", out var sv)
+                                ? sv
+                                : (flight.Status ?? "-", "status-scheduled", "bi-circle");
 
-                            @* Koltuk doluluk oranı *@
                             int occupancy = flight.TotalSeats > 0
-                            ? (int)Math.Round((double)(flight.TotalSeats - flight.AvailableSeats) / flight.TotalSeats * 100)
-                            : 0;
+                                ? (int)Math.Round((double)(flight.TotalSeats - flight.AvailableSeats) / flight.TotalSeats * 100)
+                                : 0;
 
-                            @* Süreyi saat:dakika formatına çevir *@
-                            int durHour = flight.DurationMinutes / 60;
-                            int durMin = flight.DurationMinutes % 60;
-                            string durStr = durHour > 0 ? $"{durHour}s {durMin}dk" : $"{durMin}dk";
+                            string durStr;
+                            if (flight.DurationMinutes > 0)
+                            {
+                                int durHour = flight.DurationMinutes / 60;
+                                int durMin  = flight.DurationMinutes % 60;
+                                durStr = durHour > 0 ? $"{durHour}s {durMin}dk" : $"{durMin}dk";
+                            }
+                            else
+                            {
+                                durStr = "-";
+                            }
 
-                            <tr data-flight-no="@flight.FlightNumber.ToLower()"
-                                data-dep-airport="@flight.DepartureAirportCode.ToLower() @flight.DepartureAirportName.ToLower()"
-                                data-arr-airport="@flight.ArrivalAirportCode.ToLower() @flight.ArrivalAirportName.ToLower()"
+                            <tr data-flight-no="@flight.FlightNumber?.ToLower()"
+                                data-dep-airport="@flight.DepartureAirportCode?.ToLower() @flight.DepartureAirportName?.ToLower()"
+                                data-arr-airport="@flight.ArrivalAirportCode?.ToLower() @flight.ArrivalAirportName?.ToLower()"
                                 data-airline="@flight.AirlineCode"
                                 data-status="@flight.Status">
 
@@ -233,7 +235,7 @@
                                         </div>
                                         <div class="cap-bar">
                                             <div class="cap-fill @(occupancy >= 90 ? "cap-critical" : occupancy >= 70 ? "cap-warning" : "cap-ok")"
-                                                 style="width:@occupancy%;"
+                                                 style="width:@(occupancy)%;"
                                                  title="Doluluk: %@occupancy"></div>
                                         </div>
                                     </div>
@@ -274,12 +276,12 @@
                                             <i class="bi bi-pencil-fill"></i>
                                             <span class="btn-label">Düzenle</span>
                                         </a>
-                                        <button class="act-btn act-del"
+                                        <a class="act-btn act-del"
                                                 title="Sil"
-                                                onclick="confirmDelete('@flight.FlightId', '@flight.FlightNumber')">
+                                           href="/Admin/Flights/Delete/@flight.FlightId">
                                             <i class="bi bi-trash-fill"></i>
                                             <span class="btn-label">Sil</span>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
 
@@ -300,7 +302,7 @@
 
 </main>
 
-@* ── Delete Confirm Modal ─────────────────────────────────── *@
+@* ── Delete Confirm Modal ── *@
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box" style="max-width:420px;">
         <div class="modal-head">
@@ -328,10 +330,10 @@
     </div>
 </div>
 
-@* ── Toast Container ─────────────────────────────────────── *@
+@* ── Toast Container ── *@
 <div class="toast-container-custom" id="toastContainer"></div>
 
-@* ── TempData Toast (Controller'dan gelen mesajlar) ───────── *@
+@* ── TempData Toast ── *@
 @if (TempData["SuccessMessage"] != null)
 {
     <script>
@@ -347,13 +349,8 @@
     </script>
 }
 
-@* ============================================================
-   SECTION: Extra CSS – sadece bu sayfaya özel stiller
-============================================================ *@
 @section Styles {
     <style>
-
-        /* ---- Havayolu chip ---- */
         .airline-chip {
             display: inline-block;
             padding: 3px 10px;
@@ -366,7 +363,6 @@
             letter-spacing: .5px;
         }
 
-        /* ---- Havalimanı hücresi ---- */
         .airport-cell {
             display: flex;
             flex-direction: column;
@@ -389,7 +385,6 @@
             max-width: 140px;
         }
 
-        /* ---- Tarih alt yazısı ---- */
         .date-sub {
             display: block;
             font-size: 11px;
@@ -397,7 +392,6 @@
             margin-top: 1px;
         }
 
-        /* ---- Süre hücresi ---- */
         .duration-cell {
             font-size: 12.5px;
             color: var(--gray-500);
@@ -407,7 +401,6 @@
             gap: 4px;
         }
 
-        /* ---- Kapasite ---- */
         .capacity-cell {
             display: flex;
             flex-direction: column;
@@ -421,18 +414,9 @@
             color: var(--gray-700);
         }
 
-        .cap-available {
-            color: #10B981;
-        }
-
-        .cap-sep {
-            color: var(--gray-300);
-            margin: 0 1px;
-        }
-
-        .cap-total {
-            color: var(--gray-500);
-        }
+        .cap-available { color: #10B981; }
+        .cap-sep       { color: var(--gray-300); margin: 0 1px; }
+        .cap-total     { color: var(--gray-500); }
 
         .cap-bar {
             height: 5px;
@@ -447,19 +431,10 @@
             transition: width .5s ease;
         }
 
-        .cap-ok {
-            background: #10B981;
-        }
+        .cap-ok       { background: #10B981; }
+        .cap-warning  { background: #F59E0B; }
+        .cap-critical { background: #EF4444; }
 
-        .cap-warning {
-            background: #F59E0B;
-        }
-
-        .cap-critical {
-            background: #EF4444;
-        }
-
-        /* ---- Fiyat ---- */
         .price-cell {
             font-family: 'Syne', sans-serif;
             font-size: 14px;
@@ -468,49 +443,35 @@
             white-space: nowrap;
         }
 
-            .price-cell small {
-                font-family: 'DM Sans', sans-serif;
-                font-size: 10px;
-                font-weight: 600;
-                color: var(--gray-300);
-                margin-left: 2px;
-            }
+        .price-cell small {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gray-300);
+            margin-left: 2px;
+        }
 
-        /* ---- Tamamlandı badge (yeni durum) ---- */
         .status-completed {
             background: rgba(107,114,153,.1);
             color: var(--gray-500);
         }
 
-            .status-completed .dot {
-                background: var(--gray-300);
-            }
+        .status-completed .dot { background: var(--gray-300); }
 
-        /* ---- Boş tablo satırı ---- */
         .empty-row {
             text-align: center;
             padding: 48px 20px !important;
             color: var(--gray-300);
             font-size: 14px;
         }
-
     </style>
 }
 
-@* ============================================================
-   SECTION: Scripts – client-side arama + pagination
-============================================================ *@
 @section Scripts {
     <script>
-        /* ---------------------------------------------------------------
-           Client-side filter + pagination
-           Sunucu zaten tüm listeyi render eder; JS sadece DOM'u filtreler.
-           Büyük veri setlerinde server-side pagination tercih edilmeli.
-        --------------------------------------------------------------- */
         const PER_PAGE = 8;
         let currentPage = 1;
 
-        /* Tüm <tr> satırlarını bir kez al */
         function allRows() {
             return Array.from(document.querySelectorAll('#tableBody tr[data-flight-no]'));
         }
@@ -527,7 +488,6 @@
 
             const rows = allRows();
 
-            /* Her satırı filtrele; görünür olanları topla */
             const visible = rows.filter(row => {
                 const flightNo   = row.dataset.flightNo   || '';
                 const depAirport = row.dataset.depAirport || '';
@@ -535,40 +495,32 @@
                 const rowAirline = row.dataset.airline    || '';
                 const rowStatus  = row.dataset.status     || '';
 
-                const matchQ       = !q      || [flightNo, depAirport, arrAirport, rowAirline].some(v => v.includes(q));
+                const matchQ       = !q       || [flightNo, depAirport, arrAirport, rowAirline].some(v => v.includes(q));
                 const matchStatus  = !status  || rowStatus  === status;
                 const matchAirline = !airline || rowAirline === airline;
 
-                /* Önce hepsini gizle */
                 row.style.display = 'none';
                 return matchQ && matchStatus && matchAirline;
             });
 
-            /* Pagination hesapla */
             const total      = visible.length;
             const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
             if (currentPage > totalPages) currentPage = totalPages;
 
             const from  = total === 0 ? 0 : (currentPage - 1) * PER_PAGE + 1;
             const to    = Math.min(currentPage * PER_PAGE, total);
-            const slice = visible.slice(from - 1, to);
+            visible.slice(from - 1, to).forEach(row => row.style.display = '');
 
-            /* Sadece mevcut sayfanın satırlarını göster */
-            slice.forEach(row => row.style.display = '');
-
-            /* Sayaç & info */
             document.getElementById('rowCount').textContent   = `${total} uçuş bulundu`;
             document.getElementById('footerInfo').textContent = `${from}–${to} / ${total} uçuş`;
 
             renderPagination(totalPages);
         }
 
-        /* ---- Pagination render ---- */
         function renderPagination(totalPages) {
             const ul = document.getElementById('paginationList');
             let html = '';
 
-            /* Önceki */
             html += `<li class="${currentPage === 1 ? 'disabled' : ''}">
                 <span onclick="${currentPage > 1 ? 'goPage(currentPage-1)' : ''}"
                       style="cursor:${currentPage === 1 ? 'default' : 'pointer'}">
@@ -576,9 +528,7 @@
                 </span>
             </li>`;
 
-            /* Sayfa numaraları (max 7 göster, ortada "...") */
-            const pages = buildPageRange(currentPage, totalPages);
-            pages.forEach(p => {
+            buildPageRange(currentPage, totalPages).forEach(p => {
                 if (p === '...') {
                     html += `<li><span style="cursor:default;border:none;color:var(--gray-300);">…</span></li>`;
                 } else {
@@ -588,7 +538,6 @@
                 }
             });
 
-            /* Sonraki */
             html += `<li class="${currentPage === totalPages ? 'disabled' : ''}">
                 <span onclick="${currentPage < totalPages ? 'goPage(currentPage+1)' : ''}"
                       style="cursor:${currentPage === totalPages ? 'default' : 'pointer'}">
@@ -599,14 +548,13 @@
             ul.innerHTML = html;
         }
 
-        /* 1 2 3 … 8 9 10 tarzı akıllı sayfa dizisi */
         function buildPageRange(current, total) {
             if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
             const pages = [];
             pages.push(1);
-            if (current > 3)           pages.push('...');
+            if (current > 3) pages.push('...');
             for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) pages.push(p);
-            if (current < total - 2)   pages.push('...');
+            if (current < total - 2) pages.push('...');
             pages.push(total);
             return pages;
         }
@@ -616,11 +564,10 @@
             applyFiltersAndRender();
         }
 
-        /* ---- Delete modal ---- */
-        function confirmDelete(flightId, flightNo) {
+               function confirmDelete(flightId, flightNo) {
             document.getElementById('deleteFlightNo').textContent = flightNo;
-            document.getElementById('deleteForm').action =
-                `/Admin/Flights/Delete/${flightId}`;          // route'a göre düzenle
+            document.getElementById('deleteId').value = flightId;
+            document.getElementById('deleteForm').action = `/Admin/Flights/Delete/${flightId}`;
             document.getElementById('deleteModal').classList.add('open');
         }
 
@@ -628,12 +575,10 @@
             document.getElementById('deleteModal').classList.remove('open');
         }
 
-        /* Overlay tıklamasında kapat */
         document.getElementById('deleteModal').addEventListener('click', function (e) {
             if (e.target === this) closeDeleteModal();
         });
 
-        /* ---- Toast ---- */
         function showToast(msg, type = 'info') {
             const icons = {
                 success: 'bi-check-circle-fill',
@@ -652,7 +597,6 @@
             }, 3200);
         }
 
-        /* ---- İlk yükleme ---- */
         document.addEventListener('DOMContentLoaded', () => applyFiltersAndRender());
     </script>
 }

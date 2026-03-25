@@ -23,12 +23,18 @@ namespace FlightBooking.Areas.Admin.Controllers
         {
             return View();
         }
+       
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _flightService.DeleteFlightAsync(id);
+            return Redirect("/Admin/Flights/FlightList");
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateFlight(CreateFlightDto createFlightDto)
         {
             await _flightService.CreateFlightAsync(createFlightDto);
-            return RedirectToAction("FlightList");
+            return Redirect("/Admin/Flights/FlightList");
         }
     }
 }
