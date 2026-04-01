@@ -1,13 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FlightBooking.Services.FlightServices;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace FlightBooking.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class BookingController : Controller
     {
-        public IActionResult CreateBooking()
+        private readonly IFlightService _flightService;
+
+        public BookingController(IFlightService flightService)
         {
-            return View();
+            _flightService = flightService;
+        }
+
+        public async Task<IActionResult> CreateBooking(string id)
+        {
+            var value=await _flightService.GetFlightByIdAsync(id);
+            ViewBag.FlightNumber = value.FlightNumber;
+            ViewBag.DepartureAirportCode = value.DepartureAirportCode;
+            ViewBag.departureAirportName = value.DepartureAirportName;
+            ViewBag.ArrivalAirportCode = value.ArrivalAirportCode;
+            ViewBag.ArrivalAirportName = value.ArrivalAirportName;
+            ViewBag.DepartureTime = value.DepartureTime;
+            ViewBag.ArrivalTime = value.ArrivalTime;
+            return View(value);
         }
         public IActionResult BookingList()
         {
