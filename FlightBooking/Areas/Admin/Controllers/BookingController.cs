@@ -1,6 +1,8 @@
-﻿using FlightBooking.Services.FlightServices;
+﻿using FlightBooking.Dtos.BookingDtos;
+using FlightBooking.Services.BookingServices;
+using FlightBooking.Services.FlightServices;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace FlightBooking.Areas.Admin.Controllers
 {
@@ -8,23 +10,34 @@ namespace FlightBooking.Areas.Admin.Controllers
     public class BookingController : Controller
     {
         private readonly IFlightService _flightService;
-
-        public BookingController(IFlightService flightService)
+        private readonly IBookingService _bookingService;
+        public BookingController(IFlightService flightService, IBookingService bookingService)
         {
             _flightService = flightService;
+            _bookingService = bookingService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> CreateBooking(string id)
         {
-            var value=await _flightService.GetFlightByIdAsync(id);
-            ViewBag.FlightNumber = value.FlightNumber;
+            var value = await _flightService.GetFlightByIdAsync(id);
+            ViewBag.id = id;
+            ViewBag.FlightNumber=value.FlightNumber;
             ViewBag.DepartureAirportCode = value.DepartureAirportCode;
-            ViewBag.departureAirportName = value.DepartureAirportName;
+            ViewBag.DepartureAirportName = value.DepartureAirportName;
             ViewBag.ArrivalAirportCode = value.ArrivalAirportCode;
             ViewBag.ArrivalAirportName = value.ArrivalAirportName;
             ViewBag.DepartureTime = value.DepartureTime;
             ViewBag.ArrivalTime = value.ArrivalTime;
-            return View(value);
+            ViewBag.AirlineCode = value.AirlineCode;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateBooking(CreateBookingDto createBookingDto)
+        {
+            await _bookingService.CreateBookingAsync(createBookingDto);
+            return Redirect("/Admin/Booking/BookingList/");
         }
         public IActionResult BookingList()
         {
