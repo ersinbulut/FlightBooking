@@ -37,7 +37,7 @@ namespace FlightBooking.Areas.Admin.Controllers
         public async Task<IActionResult> CreateBooking(CreateBookingDto createBookingDto)
         {
             await _bookingService.CreateBookingAsync(createBookingDto);
-            return Redirect("/Admin/Booking/BookingList/");
+            return RedirectToAction("Index", "Bookings", new { area = "Admin" });
         }
         public IActionResult BookingList()
         {

@@ -9,6 +9,7 @@ namespace FlightBooking.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string BookingId { get; set; }
         public string FlightId { get; set; }
+        public string PnrNumber { get; set; } // 🔥 EKLE
         public List<Passenger> Passengers { get; set; }
         // 🔥 İletişim burada olmalı
         public string ContactName { get; set; }

@@ -1,7 +1,7 @@
 ﻿<aside class="sidebar" id="sidebar">
 
     <!-- Brand -->
-    <a href="#" class="sidebar-brand" onclick="">
+    <a href="/Admin/Layout/Index" class="sidebar-brand">
         <div class="brand-icon"><i class="bi bi-airplane-fill"></i></div>
         <div class="brand-text">
             <span class="brand-name">SkyAdmin</span>
@@ -12,111 +12,118 @@
     <!-- Nav -->
     <nav class="sidebar-nav">
 
-        <!-- Main -->
+        <!-- ANA MENÜ -->
         <div class="nav-label">ANA MENÜ</div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Layout/Index">
                 <i class="bi bi-grid-1x2-fill icon"></i>
                 <span class="label">Dashboard</span>
-                <span class="nav-badge">5</span>
             </a>
         </div>
 
-        <!-- Flights -->
+        <!-- UÇUŞLAR -->
         <div class="nav-item-wrap">
-            <div class="nav-link-item active" id="flights-toggle" onclick="toggleSub(this,'flights-sub')">
+            <div class="nav-link-item active" onclick="toggleSub(this,'flights-sub')">
                 <i class="bi bi-airplane icon"></i>
                 <span class="label">Uçuşlar</span>
-                <i class="bi bi-chevron-down chevron open ms-auto" id="flights-chev"></i>
+                <i class="bi bi-chevron-down chevron open ms-auto"></i>
             </div>
+
             <div class="sub-menu open" id="flights-sub">
-                <a class="sub-menu-link active" href="/Admin/Flights/FlightList/" onclick=""><i class="bi bi-dot"></i>Uçuş Yönetimi</a>
-                <a class="sub-menu-link" href="#" onclick=""><i class="bi bi-dot"></i>Tarifeler</a>
-                <a class="sub-menu-link" href="#" onclick=""><i class="bi bi-dot"></i>Uçuş Durumları</a>
+                <a class="sub-menu-link" href="/Admin/Flights/FlightList">
+                    <i class="bi bi-dot"></i>Uçuş Listesi
+                </a>
+
+                <a class="sub-menu-link" href="/Admin/Flights/CreateFlight">
+                    <i class="bi bi-dot"></i>Yeni Uçuş
+                </a>
+
+                <a class="sub-menu-link" href="/Admin/Flights/FlightDetail">
+                    <i class="bi bi-dot"></i>Uçuş Detayı
+                </a>
             </div>
         </div>
 
+        <!-- DESTİNASYON -->
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Destinations/Index">
                 <i class="bi bi-geo-alt-fill icon"></i>
                 <span class="label">Destinasyonlar</span>
             </a>
         </div>
 
+        <!-- FİLO -->
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Fleet/Index">
                 <i class="bi bi-boxes icon"></i>
                 <span class="label">Uçak Filosu</span>
-                <span class="nav-badge">12</span>
             </a>
         </div>
 
-        <!-- Operations -->
+        <!-- OPERASYON -->
         <div class="nav-label">OPERASYONLAR</div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Passengers/Index">
                 <i class="bi bi-people-fill icon"></i>
                 <span class="label">Yolcular</span>
             </a>
         </div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="/Admin/Booking/BookingList" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Booking/BookingList">
                 <i class="bi bi-ticket-detailed-fill icon"></i>
                 <span class="label">Rezervasyonlar</span>
-                <span class="nav-badge">38</span>
             </a>
         </div>
 
+        <!-- CHECK-IN -->
         <div class="nav-item-wrap">
             <div class="nav-link-item" onclick="toggleSub(this,'checkin-sub')">
                 <i class="bi bi-check2-square icon"></i>
-                <span class="label">Check-In Yönetimi</span>
+                <span class="label">Check-In</span>
                 <i class="bi bi-chevron-down chevron ms-auto"></i>
             </div>
+
             <div class="sub-menu" id="checkin-sub">
-                <a class="sub-menu-link" href="#" onclick=""><i class="bi bi-dot"></i>Online Check-In</a>
-                <a class="sub-menu-link" href="#" onclick=""><i class="bi bi-dot"></i>Kiosk Yönetimi</a>
+                <a class="sub-menu-link" href="/Admin/CheckIn/Index">
+                    <i class="bi bi-dot"></i>Check-In Listesi
+                </a>
+
+                <a class="sub-menu-link" href="/Admin/CheckIn/Detail">
+                    <i class="bi bi-dot"></i>Detay
+                </a>
             </div>
         </div>
 
-        <!-- Analytics -->
+        <!-- ANALİTİK -->
         <div class="nav-label">ANALİTİK</div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Campaigns/Index">
                 <i class="bi bi-tag-fill icon"></i>
-                <span class="label">Kampanyalar & İndirimler</span>
+                <span class="label">Kampanyalar</span>
             </a>
         </div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Reports/Index">
                 <i class="bi bi-bar-chart-fill icon"></i>
                 <span class="label">Raporlar</span>
             </a>
         </div>
 
-        <!-- System -->
+        <!-- SİSTEM -->
         <div class="nav-label">SİSTEM</div>
 
         <div class="nav-item-wrap">
-            <a class="nav-link-item" href="#" onclick="setActive(this);">
+            <a class="nav-link-item" href="/Admin/Settings/Index">
                 <i class="bi bi-gear-fill icon"></i>
                 <span class="label">Ayarlar</span>
             </a>
         </div>
 
     </nav>
-
-    <!-- Sidebar footer -->
-    <div class="sidebar-footer">
-        <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
-            <i class="bi bi-arrow-bar-left" id="toggle-icon" style="font-size:16px;"></i>
-            <span id="toggle-label" style="transition:opacity .22s">Küçült</span>
-        </button>
-    </div>
 
 </aside>
