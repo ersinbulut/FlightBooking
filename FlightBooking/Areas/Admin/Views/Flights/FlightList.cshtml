@@ -1,4 +1,4 @@
-﻿@* ============================================================
+@* ============================================================
    Areas/Admin/Views/Flights/Index.cshtml
    Model : List<FlightBooking.Dtos.FlightDtos.ResultFlightDto>
    Layout: AdminLayout
@@ -6,16 +6,8 @@
 
 @model List<FlightBooking.Dtos.FlightDtos.ResultFlightDto>
 
-@{
-    Layout = "~/Areas/Admin/Views/Layout/AdminLayout.cshtml";
-    ViewData["Title"] = "Flights Management";
-
-    int totalFlights = Model?.Count() ?? 0;
-    int completedFlights = Model?.Count(f => f.Status == "Completed") ?? 0;
-    int delayedFlights = Model?.Count(f => f.Status == "Delayed") ?? 0;
-    int cancelledFlights = Model?.Count(f => f.Status == "Cancelled") ?? 0;
-
-    var statusMap = new Dictionary<string, (string Label, string Css)>
+@functions {
+    private static readonly Dictionary<string, (string Label, string Css)> statusMap = new()
     {
         ["Scheduled"] = ("Planlandı", "sb-scheduled"),
         ["Boarding"] = ("Boarding", "sb-boarding"),
@@ -24,8 +16,7 @@
         ["Completed"] = ("Tamamlandı", "sb-completed"),
     };
 
-    @* Havayolu renk paleti *@
-    var airlineMap = new Dictionary<string, (string Bg, string Fg, string Name)>
+    private static readonly Dictionary<string, (string Bg, string Fg, string Name)> airlineMap = new()
     {
         ["TK"] = ("#1a2e4a", "#ffffff", "Turkish Airlines"),
         ["PC"] = ("#e8500a", "#ffffff", "Pegasus"),
@@ -43,11 +34,21 @@
         ["SQ"] = ("#0d3769", "#f0a500", "Singapore"),
     };
 
-    (string Bg, string Fg, string Name) GetAirline(string code)
+    private (string Bg, string Fg, string Name) GetAirline(string? code)
     {
         if (code != null && airlineMap.TryGetValue(code.ToUpper(), out var v)) return v;
         return ("#64748b", "#ffffff", code ?? "");
     }
+}
+
+@{
+    Layout = "~/Areas/Admin/Views/Layout/AdminLayout.cshtml";
+    ViewData["Title"] = "Flights Management";
+
+    int totalFlights = Model?.Count(f => f != null) ?? 0;
+    int completedFlights = Model?.Count(f => f != null && f.Status == "Completed") ?? 0;
+    int delayedFlights = Model?.Count(f => f != null && f.Status == "Delayed") ?? 0;
+    int cancelledFlights = Model?.Count(f => f != null && f.Status == "Cancelled") ?? 0;
 }
 
 @section Styles {
@@ -923,7 +924,10 @@
                         <option value="">Tüm Havayolları</option>
                         @if (Model != null)
                         {
-                            foreach (var code in Model.Select(f => f.AirlineCode).Distinct().OrderBy(c => c))
+                            foreach (var code in Model.Where(f => f != null && f.AirlineCode != null)
+                                                      .Select(f => f.AirlineCode)
+                                                      .Distinct()
+                                                      .OrderBy(c => c))
                             {
                                 <option value="@code">@code</option>
                             }
@@ -970,8 +974,10 @@
                         {
                             foreach (var f in Model)
                             {
-                                var (statusLabel, statusCss) = statusMap.TryGetValue(f.Status, out var sv)
-                                ? sv : (f.Status, "sb-scheduled");
+                                if (f == null) continue;
+
+                                var (statusLabel, statusCss) = statusMap.TryGetValue(f.Status ?? "", out var sv)
+                                ? sv : (f.Status ?? "Unknown", "sb-scheduled");
 
                                 int occ = f.TotalSeats > 0
                                 ? (int)Math.Round((double)(f.TotalSeats - f.AvailableSeats) / f.TotalSeats * 100)
@@ -983,19 +989,19 @@
                                 int dM = f.DurationMinutes % 60;
                                 string durStr = dH > 0 ? $"{dH}s {dM}dk" : $"{dM}dk";
 
-                                var (alBg, alFg, alName) = GetAirline(f.AirlineCode);
+                                var (alBg, alFg, alName) = GetAirline(f.AirlineCode ?? "");
 
-                                <tr data-flight-no="@f.FlightNumber.ToLower()"
-                                    data-dep-airport="@f.DepartureAirportCode.ToLower() @f.DepartureAirportName.ToLower()"
-                                    data-arr-airport="@f.ArrivalAirportCode.ToLower() @f.ArrivalAirportName.ToLower()"
-                                    data-airline="@f.AirlineCode"
-                                    data-status="@f.Status">
+                                <tr data-flight-no="@(f.FlightNumber?.ToLower() ?? "")"
+                                    data-dep-airport="@(f.DepartureAirportCode?.ToLower() ?? "") @(f.DepartureAirportName?.ToLower() ?? "")"
+                                    data-arr-airport="@(f.ArrivalAirportCode?.ToLower() ?? "") @(f.ArrivalAirportName?.ToLower() ?? "")"
+                                    data-airline="@(f.AirlineCode ?? "")"
+                                    data-status="@(f.Status ?? "")">
 
                                     @* Flight No *@
                                     <td>
                                         <div class="cell-flightno">
                                             <span class="fn-indicator"></span>
-                                            <span class="fn-number">@f.FlightNumber</span>
+                                            <span class="fn-number">@(f.FlightNumber ?? "—")</span>
                                         </div>
                                     </td>
 
@@ -1015,16 +1021,16 @@
                                     <td>
                                         <div class="cell-route">
                                             <div class="route-codes">
-                                                <span class="rc-code">@f.DepartureAirportCode</span>
+                                                <span class="rc-code">@(f.DepartureAirportCode ?? "—")</span>
                                                 <div class="rc-arrow">
                                                     <i class="bi bi-arrow-right"></i>
                                                 </div>
-                                                <span class="rc-code">@f.ArrivalAirportCode</span>
+                                                <span class="rc-code">@(f.ArrivalAirportCode ?? "—")</span>
                                             </div>
                                             <div class="route-names">
-                                                <span>@f.DepartureAirportName</span>
+                                                <span>@(f.DepartureAirportName ?? "—")</span>
                                                 <span style="color:#e2e8f0;">·</span>
-                                                <span>@f.ArrivalAirportName</span>
+                                                <span>@(f.ArrivalAirportName ?? "—")</span>
                                             </div>
                                         </div>
                                     </td>
@@ -1072,7 +1078,7 @@
                                     <td>
                                         <div class="cell-price">
                                             <span class="p-amount">@f.BasePrice.ToString("N0")</span>
-                                            <span class="p-cur">@f.Currency</span>
+                                            <span class="p-cur">@(f.Currency ?? "")</span>
                                         </div>
                                     </td>
 
