@@ -19,7 +19,7 @@ namespace FlightBooking.Areas.Admin.Controllers
             _bookingService = bookingService;
             _checkInService = checkInService;
         }
-
+        //54.ders için eski kod
         //public async Task<IActionResult> Index(string id)
         //{
         //    ViewBag.FlightNumber = TempData["FlightNumber"];
